@@ -1,0 +1,17 @@
+# Source (published via dist/ only)
+src/
+
+# Dev config
+tsconfig.json
+.env
+.env.*
+.gitignore
+
+# Docs (too verbose for npm)
+docs/
+
+# Dev dependencies artifacts
+node_modules/
+*.log
+coverage/
+.DS_Store

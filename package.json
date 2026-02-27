@@ -1,0 +1,49 @@
+{
+  "name": "paean-pay-mcp",
+  "version": "0.1.0",
+  "description": "Stablecoin payment MCP server — USDC on Base & Solana for AI agents",
+  "author": "Paean AI <dev@paean.ai>",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "paean-pay-mcp": "dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "prepublishOnly": "tsc"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "@solana/spl-token": "^0.4.9",
+    "@solana/web3.js": "^1.98.0",
+    "bs58": "^6.0.0",
+    "viem": "^2.23.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "payment",
+    "stablecoin",
+    "usdc",
+    "base",
+    "solana",
+    "ai-agent",
+    "paean",
+    "model-context-protocol"
+  ]
+}
