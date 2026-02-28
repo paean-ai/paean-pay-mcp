@@ -18,7 +18,11 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc && node dist/index.js",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "tsc",
+    "gen:wallets": "node scripts/gen-wallets.mjs",
+    "test:testnet": "node scripts/test-mcp-local.mjs",
+    "test:base": "node scripts/test-mcp.mjs --chain base",
+    "test:solana": "node scripts/test-mcp.mjs --chain solana"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.13.0",

@@ -2,6 +2,10 @@
 
 Stablecoin payment MCP server — USDC on **Base** & **Solana** for AI agents.
 
+> **⚠ AI-Generated Software — Use at Your Own Risk**
+>
+> This software was generated with AI assistance. It has not been independently audited for security vulnerabilities. **Use of this software for handling real funds is entirely at your own risk.** The authors and contributors accept no liability for any loss of funds, security breaches, or damages resulting from use of this software. Before using with real wallets or mainnet assets, you should conduct your own security review or engage a professional auditor.
+
 [![npm version](https://img.shields.io/npm/v/paean-pay-mcp.svg)](https://www.npmjs.com/package/paean-pay-mcp) [![license](https://img.shields.io/npm/l/paean-pay-mcp.svg)](LICENSE)
 
 Give your AI agent economic sovereignty: accept payments for services, pay for external APIs, and transact with other agents — all through standard MCP tool calls.
