@@ -42,18 +42,61 @@ This MCP server wraps both chains behind a clean set of 7 tools that any LLM age
 
 ## Configuration
 
-All configuration is via environment variables, passed through your MCP client config:
+All configuration is via environment variables, passed through your MCP client config.
+
+### Wallet Configuration
+
+The server supports two wallet modes. **Private keys take precedence** — if both a private key and a mnemonic are set for the same chain, the private key is used.
+
+#### Option A: Private Keys (direct)
+
+Set a separate private key per chain. Best for agents with dedicated hot-wallets.
+
+```bash
+PAYMENT_PRIVATE_KEY_BASE=0xabc...    # Hex private key for Base (EVM)
+PAYMENT_PRIVATE_KEY_SOLANA=5Kb8...   # Base58 private key for Solana
+```
+
+#### Option B: Mnemonic (HD wallet)
+
+Set a single BIP-39 mnemonic phrase to derive wallets for both chains. Compatible with Phantom, MetaMask, and other HD wallets.
+
+```bash
+PAYMENT_MNEMONIC="abandon abandon abandon ... about"     # 12 or 24 words
+PAYMENT_HD_PATH_BASE="m/44'/60'/0'/0/0"                   # optional, default shown
+PAYMENT_HD_PATH_SOLANA="m/44'/501'/0'/0'"                  # optional, default shown
+```
+
+Default derivation paths:
+- **Base (EVM):** `m/44'/60'/0'/0/0` — standard Ethereum/MetaMask path (first account)
+- **Solana:** `m/44'/501'/0'/0'` — standard Phantom/Solflare path (first account)
+
+To use a different account index, change the last number, e.g. `m/44'/60'/0'/0/1` for the second Base account.
+
+#### Mixing modes
+
+You can use a private key for one chain and a mnemonic for the other:
+
+```bash
+PAYMENT_PRIVATE_KEY_BASE=0xabc...                          # direct key for Base
+PAYMENT_MNEMONIC="abandon abandon abandon ... about"       # mnemonic for Solana
+```
+
+### Environment Variables
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `PAYMENT_PRIVATE_KEY_BASE` | For sending | — | Hex private key for Base wallet |
-| `PAYMENT_PRIVATE_KEY_SOLANA` | For sending | — | Base58 private key for Solana wallet |
+| `PAYMENT_PRIVATE_KEY_BASE` | For sending† | — | Hex private key for Base wallet |
+| `PAYMENT_PRIVATE_KEY_SOLANA` | For sending† | — | Base58 private key for Solana wallet |
+| `PAYMENT_MNEMONIC` | For sending† | — | BIP-39 mnemonic phrase (12 or 24 words) |
+| `PAYMENT_HD_PATH_BASE` | No | `m/44'/60'/0'/0/0` | HD derivation path for Base wallet |
+| `PAYMENT_HD_PATH_SOLANA` | No | `m/44'/501'/0'/0'` | HD derivation path for Solana wallet |
 | `PAYMENT_RPC_URL_BASE` | No | `https://mainnet.base.org` | Custom Base RPC endpoint |
 | `PAYMENT_RPC_URL_SOLANA` | No | `https://api.mainnet-beta.solana.com` | Custom Solana RPC endpoint |
 | `PAYMENT_NETWORK` | No | `mainnet` | `mainnet` or `testnet` |
 | `PAYMENT_DEFAULT_CHAIN` | No | `base` | Default chain: `base` or `solana` |
 
-**Read-only mode**: Without private keys, the server still works for balance checks, transaction lookups, and payment request tracking. Private keys are only needed for `send_usdc` and `create_payment_request`.
+† At least one of `PAYMENT_PRIVATE_KEY_*` or `PAYMENT_MNEMONIC` is needed to send USDC. Without any wallet, the server runs in **read-only mode** (balance checks, transaction lookups, payment request tracking).
 
 **Testnet mode**: Set `PAYMENT_NETWORK=testnet` to use Base Sepolia and Solana Devnet. Get test USDC from [Circle's faucet](https://faucet.circle.com/).
 
@@ -178,6 +221,23 @@ Add to your `paeanclaw.config.json`:
 }
 ```
 
+Or use a mnemonic to derive both wallets from one seed:
+
+```json
+{
+  "mcpServers": {
+    "payment": {
+      "command": "npx",
+      "args": ["-y", "paean-pay-mcp"],
+      "env": {
+        "PAYMENT_MNEMONIC": "${WALLET_MNEMONIC}",
+        "PAYMENT_NETWORK": "mainnet"
+      }
+    }
+  }
+}
+```
+
 Then customize your `AGENT.md` to instruct the agent on when to charge:
 
 ```markdown
@@ -285,8 +345,10 @@ Agent B: "Payment received. Processing your request..."
 
 ## Security
 
-- **Private keys** are passed via environment variables and never logged or exposed through tool outputs
-- **Read-only by default** — without private keys, no funds can be sent
+- **Private keys and mnemonics** are passed via environment variables and never logged or exposed through tool outputs
+- When using a mnemonic, derived private keys exist only in memory and are never persisted
+- **Never commit private keys or mnemonics to version control.** Use environment variables or a secrets manager.
+- **Read-only by default** — without any wallet configured, no funds can be sent
 - **In-memory store** — payment request tracking is ephemeral; restarting clears all state
 - Use **testnet** (`PAYMENT_NETWORK=testnet`) for development and testing
 

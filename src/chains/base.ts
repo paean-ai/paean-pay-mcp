@@ -7,8 +7,8 @@ import {
   type Chain,
   type HttpTransport,
 } from 'viem';
-import { type PrivateKeyAccount } from 'viem/accounts';
-import { privateKeyToAccount } from 'viem/accounts';
+import { type PrivateKeyAccount, type HDAccount } from 'viem/accounts';
+import { privateKeyToAccount, mnemonicToAccount } from 'viem/accounts';
 import { base, baseSepolia } from 'viem/chains';
 import {
   type ChainProvider,
@@ -47,7 +47,7 @@ const ERC20_ABI = parseAbi([
 export class BaseChainProvider implements ChainProvider {
   readonly chain = 'base' as const;
   private publicClient: PublicClient<HttpTransport, Chain>;
-  private walletAccount: PrivateKeyAccount | null = null;
+  private walletAccount: PrivateKeyAccount | HDAccount | null = null;
   private viemChain: Chain;
   private walletAddress: string | null = null;
   private usdcAddress: `0x${string}`;
@@ -73,6 +73,12 @@ export class BaseChainProvider implements ChainProvider {
         ? config.privateKey as `0x${string}`
         : `0x${config.privateKey}` as `0x${string}`;
       this.walletAccount = privateKeyToAccount(key);
+    } else if (config.mnemonic) {
+      const path = (config.hdPath ?? "m/44'/60'/0'/0/0") as `m/44'/60'/${string}`;
+      this.walletAccount = mnemonicToAccount(config.mnemonic, { path });
+    }
+
+    if (this.walletAccount) {
       this.walletAddress = this.walletAccount.address;
     }
   }
@@ -98,7 +104,7 @@ export class BaseChainProvider implements ChainProvider {
 
   async sendUsdc(to: string, amount: string): Promise<TransferResult> {
     if (!this.walletAccount || !this.walletAddress) {
-      throw new Error('No private key configured for Base chain. Set PAYMENT_PRIVATE_KEY_BASE to send USDC.');
+      throw new Error('No wallet configured for Base chain. Set PAYMENT_PRIVATE_KEY_BASE or PAYMENT_MNEMONIC to send USDC.');
     }
     const walletClient = createWalletClient({
       account: this.walletAccount,

@@ -10,6 +10,8 @@ import {
   transfer,
 } from '@solana/spl-token';
 import bs58 from 'bs58';
+import { mnemonicToSeedSync } from '@scure/bip39';
+import { derivePath } from 'ed25519-hd-key';
 import {
   type ChainProvider,
   type ChainConfig,
@@ -63,6 +65,14 @@ export class SolanaChainProvider implements ChainProvider {
         );
         this.keypair = Keypair.fromSecretKey(bytes);
       }
+    } else if (config.mnemonic) {
+      const seed = mnemonicToSeedSync(config.mnemonic);
+      const path = config.hdPath ?? "m/44'/501'/0'/0'";
+      const derived = derivePath(path, Buffer.from(seed).toString('hex'));
+      this.keypair = Keypair.fromSeed(derived.key);
+    }
+
+    if (this.keypair) {
       this.walletAddress = this.keypair.publicKey.toBase58();
     }
   }
@@ -94,7 +104,7 @@ export class SolanaChainProvider implements ChainProvider {
 
   async sendUsdc(to: string, amount: string): Promise<TransferResult> {
     if (!this.keypair) {
-      throw new Error('No private key configured for Solana chain. Set PAYMENT_PRIVATE_KEY_SOLANA to send USDC.');
+      throw new Error('No wallet configured for Solana chain. Set PAYMENT_PRIVATE_KEY_SOLANA or PAYMENT_MNEMONIC to send USDC.');
     }
 
     const rawAmount = parseUsdcAmount(amount);

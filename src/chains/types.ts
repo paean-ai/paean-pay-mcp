@@ -84,5 +84,10 @@ export function formatUsdcAmount(raw: bigint | number | string): string {
 export interface ChainConfig {
   network: NetworkId;
   rpcUrl?: string;
+  /** Hex private key (Base: 0x…, Solana: base58). Takes precedence over mnemonic. */
   privateKey?: string;
+  /** BIP-39 mnemonic phrase (12 or 24 words). Used when privateKey is not set. */
+  mnemonic?: string;
+  /** HD derivation path. Default: m/44'/60'/0'/0/0 (Base) or m/44'/501'/0'/0' (Solana). */
+  hdPath?: string;
 }

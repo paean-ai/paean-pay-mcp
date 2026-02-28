@@ -18,12 +18,16 @@ function buildProviders(): Map<ChainId, ChainProvider> {
     network,
     rpcUrl: env('PAYMENT_RPC_URL_BASE'),
     privateKey: env('PAYMENT_PRIVATE_KEY_BASE'),
+    mnemonic: env('PAYMENT_MNEMONIC'),
+    hdPath: env('PAYMENT_HD_PATH_BASE'),
   };
 
   const solanaConfig: ChainConfig = {
     network,
     rpcUrl: env('PAYMENT_RPC_URL_SOLANA'),
     privateKey: env('PAYMENT_PRIVATE_KEY_SOLANA'),
+    mnemonic: env('PAYMENT_MNEMONIC'),
+    hdPath: env('PAYMENT_HD_PATH_SOLANA'),
   };
 
   // Always initialize both providers — they work read-only without a private key
